@@ -532,9 +532,6 @@ class Teleport(MagicWord):
 
         hoodId = request[0]
 
-        if hoodId in (ToontownGlobals.ToontownOutskirts, ToontownGlobals.ToontownCentralBeta, ToontownGlobals.DaisyGardensBeta) and not toon.getUnlocks()[0]:
-            return "You don't know how to get to that location yet!"
-
         toon.d_doTeleport(hood)
         return "Teleporting {0} to {1}!".format(toon.getName(), ToontownGlobals.hoodNameMap[hoodId][-1])
 
@@ -835,10 +832,6 @@ class SpawnBuilding(MagicWord):
             suitIndex = SuitDNA.suitHeadTypes.index(suitName)
         except:
             return "Invalid Cog specified.".format(suitName)
-
-        if suitName in SuitDNA.extraSuits.keys():
-            return "Custom Cogs cannot take over buildings."
-
         returnCode = invoker.doBuildingTakeover(suitIndex)
         if returnCode[0] == 'success':
             return "Successfully spawned building with Cog '{0}'!".format(suitName)
@@ -1066,7 +1059,7 @@ class SetInventory(MagicWord):
                 return "Invalid target track index: {0}".format(targetTrack)
             if (targetTrack != -1) and (not toon.hasTrackAccess(targetTrack)):
                 return "The target Toon doesn't have target track index: {0}".format(targetTrack)
-            inventory.NPCMaxOutInv(targetTrack=targetTrack, maxLevelIndex=maxLevelIndex)
+            inventory.NPCMaxOutInv(targetTrack=targetTrack)
             toon.b_setInventory(inventory.makeNetString())
             if targetTrack == -1:
                 return "Inventory restocked."
@@ -1700,13 +1693,12 @@ class SpawnCog(MagicWord):
             return "Suit %s is not a valid suit!" % name
         if level not in ToontownGlobals.SuitLevels:
             return "Invalid Cog Level."
-        level = ToontownGlobals.SuitLevels.index(level) + 1
 
         sp = simbase.air.suitPlanners.get(zoneId - (zoneId % 100))
         if not sp:
             return "Unable to spawn %s in current zone." % name
         pointmap = sp.streetPointList
-        sp.createNewSuit([], pointmap, suitName=name, suitLevel=level, specialSuit=specialSuit)
+        sp.createNewSuit([], pointmap, suitName=name, suitLevel=level)
         return "Spawned %s in current zone." % name
 
 
@@ -2132,8 +2124,13 @@ class SetSos(MagicWord):
         if not 0 <= amt <= 100:
             return "The amount must be between 0 and 100!"
 
-        npcId, npcName = NPCToons.loadCards(cardInfo=json.loads(simbase.air.moddingManager.getCards()), name=name)
-        if not npcId:
+        for npcId, npcName in TTLocalizer.NPCToonNames.items():
+            if name.lower() == npcName.lower():
+                if npcId not in NPCToons.npcFriends:
+                    continue
+                break
+        
+        else:
             return "The {0} SOS card was not found!".format(name)
 
         if (amt == 0) and (npcId in invoker.NPCFriendsDict):
