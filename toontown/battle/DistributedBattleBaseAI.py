@@ -1656,8 +1656,6 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
                     self.notify.debug('movieDone() - toon: %d was killed' % activeToon)
                     toon.inventory.zeroInv(1)
                     deadToons.append(activeToon)
-                if toon.getUnlimitedGags():
-                    toon.inventory.NPCMaxOutInv()
                 self.notify.debug('AFTER ROUND: toon: %d setHp: %d' % (toon.doId, toon.hp))
 
         for deadToon in deadToons:

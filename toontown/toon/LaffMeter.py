@@ -1,9 +1,7 @@
-from panda3d.core import Vec4, Vec3
+from panda3d.core import Vec4
 from direct.gui.DirectGui import DirectFrame, DirectLabel
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownIntervals
-from direct.interval.IntervalGlobal import *
-
 
 class LaffMeter(DirectFrame):
     deathColor = Vec4(0.58039216, 0.80392157, 0.34117647, 1.0)
@@ -84,8 +82,7 @@ class LaffMeter(DirectFrame):
              0.333333,
              0.5,
              0.666666,
-             0.833333,
-             1]
+             0.833333]
         gui.removeNode()
         return
 
@@ -119,8 +116,6 @@ class LaffMeter(DirectFrame):
             for i in xrange(len(self.teeth)):
                 if self.hp > self.maxHp * self.fractions[i]:
                     self.teeth[i].show()
-                    alpha = min((self.hp - self.maxHp * self.fractions[i])/(self.fractions[i+1] * self.maxHp - self.fractions[i] * self.maxHp),1)
-                    self.teeth[i].set_alpha_scale(alpha)
                 else:
                     self.teeth[i].hide()
 
